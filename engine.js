@@ -53,7 +53,7 @@ class Game {
     constructor(GRID_SIZE, pixel_size) {
         this.GRID_SIZE = GRID_SIZE;
         this.PIXEL_SIZE = pixel_size;
-        this.MAX_SCORE = 10;
+        this.MAX_SCORE = 50;
         this.maxObjectId = 0;
 
         const game = document.querySelector('#game');
