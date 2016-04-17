@@ -2,6 +2,7 @@
 
 /**
  * TODO:
+ * - display score inside game canvas
  * - various speed for enemies
  * - collision detection improvement (take size into account)
  * - sound
@@ -16,7 +17,7 @@ const types = {
 };
 
 class GameObject {
-    constructor(type, size, xPos, yPos, xMovement = 0, yMovement = 0) {
+    constructor(type, size, xPos, yPos, xMovement = 0, yMovement = 0, speed = 0.5) {
         this.position = {
             x: xPos,
             y: yPos
@@ -25,6 +26,7 @@ class GameObject {
             x: xMovement,
             y: yMovement
         };
+        this.speed = speed;
         this.size = size;
         this.type = type;
     }
@@ -34,8 +36,8 @@ class GameObject {
     }
 
     move() {
-        this.position.x += this.movement.x;
-        this.position.y += this.movement.y;
+        this.position.x += this.movement.x; // * this.speed;
+        this.position.y += this.movement.y; // * this.speed;
     }
 }
 
@@ -119,20 +121,34 @@ class Game {
         return null;
     }
 
-    play() {
+    play(spawnFunction) {
+        if (spawnFunction) {
+            this.spawnFunction = spawnFunction;
+        }
         if (this.isPlaying === true) {
             this.moveItems();
             this.detectCollisions();
             this.renderGame();
+            let newGameObject = this.spawnFunction();
+            if (newGameObject) {
+                this.addGameObject(newGameObject);
+            }
         }
         requestAnimationFrame(() => this.play());
     }
 
     moveItems() {
         this.player.move(this.getNewPlayerPosition());
-        this.gameObjects.forEach(function (gameObject) {
+        this.gameObjects.forEach((gameObject) => {
             gameObject.move();
+            if (this.isOutsideOfGameArea(gameObject)) {
+                this.removeGameObject(gameObject)
+            }
         });
+    }
+
+    isOutsideOfGameArea(gameObject) {
+        return gameObject.position.x < 0 || gameObject.position.x > this.GRID_SIZE || gameObject.position.y < 0 || gameObject.position.y > this.GRID_SIZE;
     }
 
     detectCollisions() {

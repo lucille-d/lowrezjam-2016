@@ -21,36 +21,42 @@ const player = new Player(1, 30, 30,
 
 game.addGameObject(player);
 
-let berries = createBerries();
-berries.forEach((berry) => game.addGameObject(berry));
+game.play(spawnBerry);
 
-game.play();
-
-function createBerries() {
-    let numberOfBerries = Math.floor((Math.random() * 10) + 1);
-    let numberOfBadBerries = Math.floor((Math.random() * (numberOfBerries / 3)) + 1);
-    let berries = [];
-    for (let i = 0; i < numberOfBerries + numberOfBadBerries; i++) {
-        let newBerry;
+function spawnBerry() {
+    //good or bad berry
+    let newBerry;
+    let isBad = Math.random() > 0.9; //make dynamic with game difficulty (score)
+    if (Math.random() > 0.6) { //1 out of 10 chance to spawn
         let newBerryPosition = {
             x: Math.floor((Math.random() * (GRID_SIZE - 1)) + 1),
             y: Math.floor((Math.random() * (GRID_SIZE - 1)) + 1)
         };
+
+
         let newBerryMovement = {
-            x: 0, //Math.floor((Math.random() * 3) - 1),
-            y: 0 //Math.floor((Math.random() * 3) - 1)
+            x: Math.floor((Math.random() * 3) - 1),
+            y: Math.floor((Math.random() * 3) - 1)
         };
+        if (Math.random() > 0.5) {
+            newBerryPosition.x = 0;
+            newBerryMovement.x = 1;
+        } else {
+            newBerryPosition.y = 0;
+            newBerryMovement.y = 1;
+        }
+        let newBerrySpeed = Math.random();
         let newBerryType = 'item';
-        if (i > numberOfBerries) { //bad berry territory
+        if (isBad) {
             newBerryType = 'enemy';
         }
         newBerry = new GameObject(newBerryType, 1,
             newBerryPosition.x, newBerryPosition.y,
-            newBerryMovement.x, newBerryMovement.y
+            newBerryMovement.x, newBerryMovement.y,
+            newBerrySpeed
         );
-        berries.push(newBerry);
     }
-    return berries;
+    return newBerry;
 }
 
 
