@@ -26,9 +26,6 @@ class GameObject {
             y: yMovement
         };
         this.size = size;
-        if (this.size % 2 === 0) { //size must be odd for symetry
-            this.size--;
-        }
         this.type = type;
     }
 
@@ -164,13 +161,12 @@ class Game {
             line.forEach((square, sqIdx) => {
                 //draw player
                 this.c.fillStyle = 'white';
-                let playerRadius = Math.floor(this.player.size / 2);
-                if (sqIdx === Math.floor(this.player.position.x) - playerRadius &&
-                    lineIdx === Math.floor(this.player.position.y) - playerRadius) {
-                    this.c.fillRect(sqIdx * this.PIXEL_SIZE - playerRadius,
-                        lineIdx * this.PIXEL_SIZE - playerRadius,
-                        this.PIXEL_SIZE * (playerRadius * 2 + 1),
-                        this.PIXEL_SIZE * (playerRadius * 2 + 1));
+                if (sqIdx === this.player.position.x &&
+                    lineIdx === this.player.position.y) {
+                    this.c.fillRect(sqIdx * this.PIXEL_SIZE,
+                        lineIdx * this.PIXEL_SIZE,
+                        this.PIXEL_SIZE * this.player.size,
+                        this.PIXEL_SIZE * this.player.size);
                 }
 
                 //draw game objects
@@ -180,13 +176,12 @@ class Game {
                     } else if (gameObject.type === types.ENEMY) {
                         this.c.fillStyle = 'red';
                     }
-                    let gameObjectRadius = Math.floor(gameObject.size / 2);
-                    if (sqIdx === Math.floor(gameObject.position.x) - gameObjectRadius &&
-                        lineIdx === Math.floor(gameObject.position.y) - gameObjectRadius) {
-                        this.c.fillRect(sqIdx * this.PIXEL_SIZE - gameObjectRadius,
-                            lineIdx * this.PIXEL_SIZE - gameObjectRadius,
-                            this.PIXEL_SIZE * (gameObjectRadius * 2 + 1),
-                            this.PIXEL_SIZE * (gameObjectRadius * 2 + 1));
+                    if (sqIdx === gameObject.position.x &&
+                        lineIdx === gameObject.position.y) {
+                        this.c.fillRect(sqIdx * this.PIXEL_SIZE,
+                            lineIdx * this.PIXEL_SIZE,
+                            this.PIXEL_SIZE * gameObject.size,
+                            this.PIXEL_SIZE * gameObject.size);
                     }
                 });
             });

@@ -9,7 +9,7 @@
  * - restart mechanic
  * - bounce() to change direction
  * - electron packaging
- * - github upload
+ * - update readme
  * - submit
  */
 
@@ -23,12 +23,6 @@ game.addGameObject(player);
 
 let berries = createBerries();
 berries.forEach((berry) => game.addGameObject(berry));
-
-//TODO remove this berry
-game.addGameObject(new GameObject('item', 1,
-    63, 63,
-    0, 0
-));
 
 game.play();
 
