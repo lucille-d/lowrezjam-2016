@@ -2,16 +2,20 @@
 
 /**
  * TODO:
- * - avoid berry leaving the scene -> method isLeavingScene()?
- * - constant generation of berries and enemies (min number of items)
- * - player death
- * - end condition (score / lives)
  * - restart mechanic
- * - bounce() to change direction
- * - electron packaging
- * - update readme
+ * - not grow so fast
+ * - display score inside game canvas
  * - submit
+ * - update readme
  */
+ /**
+  * NTH:
+  * - electron
+  * - readme
+  * - sound
+  * - music
+  */
+
 
 const GRID_SIZE = 64;
 const game = new Game(GRID_SIZE, 8);
@@ -21,18 +25,24 @@ const player = new Player(1, 30, 30,
 
 game.addGameObject(player);
 
-game.play(spawnBerry);
+game.startPlaying(spawnBerry);
+game.win();
+game.displayEndScreen();
 
 function spawnBerry() {
-    //good or bad berry
     let newBerry;
-    let isBad = Math.random() > 0.9; //make dynamic with game difficulty (score)
-    if (Math.random() > 0.6) { //1 out of 10 chance to spawn
+    let difficulty = game.score / 100;
+    if (difficulty < 0.1) {
+        difficulty = 0.1;
+    } else if (difficulty > 0.9) {
+        difficulty = 0.9;
+    }
+    let isBad = Math.random() > (1 - difficulty);
+    if (Math.random() > 0.4) { //1 out of 10 chance to spawn
         let newBerryPosition = {
             x: Math.floor((Math.random() * (GRID_SIZE - 1)) + 1),
             y: Math.floor((Math.random() * (GRID_SIZE - 1)) + 1)
         };
-
 
         let newBerryMovement = {
             x: Math.floor((Math.random() * 3) - 1),
@@ -59,8 +69,6 @@ function spawnBerry() {
     return newBerry;
 }
 
-
-//DEFINE PLAYER BEHAVIOUR ON COLLISION HERE WITH CALLBACKS
 function onCollisionWithBerry(berry) {
     player.size++;
     game.score++;
@@ -71,7 +79,7 @@ function onCollisionWithBadBerry(berry) {
     if (player.size > 1) {
         player.size--;
     } else {
-        player.die();
+        game.lose();
     }
     game.removeGameObject(berry);
 }

@@ -1,15 +1,5 @@
 "use strict";
 
-/**
- * TODO:
- * - display score inside game canvas
- * - various speed for enemies
- * - collision detection improvement (take size into account)
- * - sound
- * - music
- * - mute
- */
-
 const types = {
     PLAYER: 'player',
     ITEM: 'item',
@@ -36,8 +26,8 @@ class GameObject {
     }
 
     move() {
-        this.position.x += this.movement.x; // * this.speed;
-        this.position.y += this.movement.y; // * this.speed;
+        this.position.x += this.movement.x * this.speed;
+        this.position.y += this.movement.y * this.speed;
     }
 }
 
@@ -83,9 +73,19 @@ class Game {
                 this.mousePosition.y = e.layerY;
             }
         });
+
         //detect mouse enter/leave for pausing the game
-        game.addEventListener('mouseenter', (e) => this.isPlaying = true);
+        game.addEventListener('mouseenter', (e) => {
+            if (this.player.alive) {
+                this.isPlaying = true
+            }
+        });
         game.addEventListener('mouseleave', (e) => this.isPlaying = false);
+        game.addEventListener('click', (e) => {
+            if (!this.player.alive) {
+                this.startPlaying();
+            }
+        });
     }
 
     initGameGrid() {
@@ -121,11 +121,22 @@ class Game {
         return null;
     }
 
-    play(spawnFunction) {
+    startPlaying(spawnFunction) {
+        console.log("start playing");
         if (spawnFunction) {
             this.spawnFunction = spawnFunction;
         }
+        this.score = 0;
+        this.player.alive = true;
+        this.isPlaying = true;
+        this.play();
+    }
+
+    play() {
         if (this.isPlaying === true) {
+            if (this.score > 100) {
+                this.win();
+            }
             this.moveItems();
             this.detectCollisions();
             this.renderGame();
@@ -192,8 +203,8 @@ class Game {
                     } else if (gameObject.type === types.ENEMY) {
                         this.c.fillStyle = 'red';
                     }
-                    if (sqIdx === gameObject.position.x &&
-                        lineIdx === gameObject.position.y) {
+                    if (sqIdx === Math.floor(gameObject.position.x) &&
+                        lineIdx === Math.floor(gameObject.position.y)) {
                         this.c.fillRect(sqIdx * this.PIXEL_SIZE,
                             lineIdx * this.PIXEL_SIZE,
                             this.PIXEL_SIZE * gameObject.size,
@@ -220,5 +231,49 @@ class Game {
     updateScoreDisplay() {
         document.querySelector('#score')
             .innerHTML = this.score + ' pts';
+    }
+
+    win() {
+        this.endGame(true);
+    }
+
+    lose() {
+        this.endGame(false);
+    }
+
+    endGame(victory) {
+        this.isPlaying = false;
+        this.gameObjects = [];
+        this.displayEndScreen(this.score);
+        this.score = 0;
+        this.player.alive = false;
+    }
+
+    displayEndScreen(score) {
+        this.c.save();
+        this.c.clearRect(0, 0, this.GRID_SIZE * this.PIXEL_SIZE, this.GRID_SIZE * this.PIXEL_SIZE);
+        this.c.fillStyle = 'white';
+        let pixelsInGameOver = [{
+            x: 10,
+            y: 10
+        }];
+        pixelsInGameOver.forEach((pixel) => {
+            this.drawPixel(pixel.x, pixel.y);
+        });
+        this.c.restore();
+    }
+
+    drawPixel(x, y, color) {
+        this.c.save();
+        if (color) {
+            this.fillStyle = color;
+        } else {
+            this.fillStyle = 'white';
+        }
+        this.c.fillRect(x * this.PIXEL_SIZE,
+            y * this.PIXEL_SIZE,
+            this.PIXEL_SIZE,
+            this.PIXEL_SIZE);
+        this.c.restore();
     }
 }
