@@ -1,0 +1,11 @@
+html, body {
+    padding: 0;
+    width: 100%;
+    margin: 0;
+    background: grey;
+}
+.game-canvas {
+    display: block;
+    margin: 10% auto;
+    background: black;
+}
