@@ -7,5 +7,5 @@ html, body {
 .game-canvas {
     display: block;
     margin: 10% auto;
-    background: black;
+    background: darkslategray;
 }

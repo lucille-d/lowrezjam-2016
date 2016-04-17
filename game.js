@@ -2,19 +2,18 @@
 
 /**
  * TODO:
- * - restart mechanic
- * - not grow so fast
+ * - restart screen
  * - display score inside game canvas
  * - submit
  * - update readme
  */
- /**
-  * NTH:
-  * - electron
-  * - readme
-  * - sound
-  * - music
-  */
+/**
+ * NTH:
+ * - electron
+ * - readme
+ * - sound
+ * - music
+ */
 
 
 const GRID_SIZE = 64;
@@ -25,9 +24,8 @@ const player = new Player(1, 30, 30,
 
 game.addGameObject(player);
 
-game.startPlaying(spawnBerry);
-game.win();
-game.displayEndScreen();
+game.spawnFunction = spawnBerry;
+game.displayMenu(false);
 
 function spawnBerry() {
     let newBerry;
@@ -70,16 +68,15 @@ function spawnBerry() {
 }
 
 function onCollisionWithBerry(berry) {
-    player.size++;
+    player.size += 0.2;
     game.score++;
     game.removeGameObject(berry);
 }
 
 function onCollisionWithBadBerry(berry) {
-    if (player.size > 1) {
-        player.size--;
-    } else {
-        game.lose();
+    player.size--;
+    if (player.size < 1) {
+        game.endGame();
     }
     game.removeGameObject(berry);
 }

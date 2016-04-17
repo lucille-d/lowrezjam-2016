@@ -34,8 +34,13 @@ class GameObject {
 class Player extends GameObject {
     constructor(size, xPos, yPos, onCollisionWithItem, onCollisionWithEnemy) {
         super(types.PLAYER, size, xPos, yPos, 0, 0);
+        this.originalSize = size;
         this.onCollisionWithItem = onCollisionWithItem;
         this.onCollisionWithEnemy = onCollisionWithEnemy;
+    }
+
+    resetSize() {
+        this.size = this.originalSize;
     }
 
     move(newPosition) {
@@ -48,6 +53,7 @@ class Game {
     constructor(GRID_SIZE, pixel_size) {
         this.GRID_SIZE = GRID_SIZE;
         this.PIXEL_SIZE = pixel_size;
+        this.MAX_SCORE = 10;
         this.maxObjectId = 0;
 
         const game = document.querySelector('#game');
@@ -122,20 +128,20 @@ class Game {
     }
 
     startPlaying(spawnFunction) {
-        console.log("start playing");
         if (spawnFunction) {
             this.spawnFunction = spawnFunction;
         }
         this.score = 0;
         this.player.alive = true;
+        this.player.resetSize();
         this.isPlaying = true;
         this.play();
     }
 
     play() {
         if (this.isPlaying === true) {
-            if (this.score > 100) {
-                this.win();
+            if (this.score >= this.MAX_SCORE) {
+                this.endGame();
             }
             this.moveItems();
             this.detectCollisions();
@@ -188,18 +194,18 @@ class Game {
             line.forEach((square, sqIdx) => {
                 //draw player
                 this.c.fillStyle = 'white';
-                if (sqIdx === this.player.position.x &&
-                    lineIdx === this.player.position.y) {
+                if (sqIdx === Math.floor(this.player.position.x) &&
+                    lineIdx === Math.floor(this.player.position.y)) {
                     this.c.fillRect(sqIdx * this.PIXEL_SIZE,
                         lineIdx * this.PIXEL_SIZE,
-                        this.PIXEL_SIZE * this.player.size,
-                        this.PIXEL_SIZE * this.player.size);
+                        this.PIXEL_SIZE * Math.floor(this.player.size),
+                        this.PIXEL_SIZE * Math.floor(this.player.size));
                 }
 
                 //draw game objects
                 this.gameObjects.forEach((gameObject) => {
                     if (gameObject.type === types.ITEM) {
-                        this.c.fillStyle = 'blue';
+                        this.c.fillStyle = 'lime';
                     } else if (gameObject.type === types.ENEMY) {
                         this.c.fillStyle = 'red';
                     }
@@ -207,8 +213,8 @@ class Game {
                         lineIdx === Math.floor(gameObject.position.y)) {
                         this.c.fillRect(sqIdx * this.PIXEL_SIZE,
                             lineIdx * this.PIXEL_SIZE,
-                            this.PIXEL_SIZE * gameObject.size,
-                            this.PIXEL_SIZE * gameObject.size);
+                            this.PIXEL_SIZE * Math.floor(gameObject.size),
+                            this.PIXEL_SIZE * Math.floor(gameObject.size));
                     }
                 });
             });
@@ -233,47 +239,43 @@ class Game {
             .innerHTML = this.score + ' pts';
     }
 
-    win() {
-        this.endGame(true);
-    }
-
-    lose() {
-        this.endGame(false);
-    }
-
-    endGame(victory) {
+    endGame() {
         this.isPlaying = false;
         this.gameObjects = [];
-        this.displayEndScreen(this.score);
-        this.score = 0;
+
+        requestAnimationFrame(() => this.displayMenu(true, this.score >= this.MAX_SCORE ? true : false));
+
         this.player.alive = false;
     }
 
-    displayEndScreen(score) {
+    displayMenu(gameFinished, victory) {
         this.c.save();
         this.c.clearRect(0, 0, this.GRID_SIZE * this.PIXEL_SIZE, this.GRID_SIZE * this.PIXEL_SIZE);
-        this.c.fillStyle = 'white';
-        let pixelsInGameOver = [{
-            x: 10,
-            y: 10
-        }];
-        pixelsInGameOver.forEach((pixel) => {
-            this.drawPixel(pixel.x, pixel.y);
-        });
+
+        if (gameFinished) {
+            drawLetter(this.c, 'Y', 6, 15);
+            drawLetter(this.c, 'O', 12, 15);
+            drawLetter(this.c, 'U', 17, 15);
+
+            if (victory) {
+                drawLetter(this.c, 'W', 24, 15);
+                drawLetter(this.c, 'I', 30, 15);
+                drawLetter(this.c, 'N', 34, 15);
+            } else {
+                drawLetter(this.c, 'L', 24, 15);
+                drawLetter(this.c, 'O', 29, 15);
+                drawLetter(this.c, 'S', 34, 15);
+                drawLetter(this.c, 'E', 39, 15);
+            }
+        }
+        drawLetter(this.c, 'C', 14, 30);
+        drawLetter(this.c, 'L', 19, 30);
+        drawLetter(this.c, 'I', 24, 30);
+        drawLetter(this.c, 'C', 28, 30);
+        drawLetter(this.c, 'K', 33, 30);
+
         this.c.restore();
     }
 
-    drawPixel(x, y, color) {
-        this.c.save();
-        if (color) {
-            this.fillStyle = color;
-        } else {
-            this.fillStyle = 'white';
-        }
-        this.c.fillRect(x * this.PIXEL_SIZE,
-            y * this.PIXEL_SIZE,
-            this.PIXEL_SIZE,
-            this.PIXEL_SIZE);
-        this.c.restore();
-    }
+
 }
