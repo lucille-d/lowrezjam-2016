@@ -1,21 +1,5 @@
 "use strict";
 
-/**
- * TODO:
- * - restart screen
- * - display score inside game canvas
- * - submit
- * - update readme
- */
-/**
- * NTH:
- * - electron
- * - readme
- * - sound
- * - music
- */
-
-
 const GRID_SIZE = 64;
 const game = new Game(GRID_SIZE, 8);
 const player = new Player(1, 30, 30,
